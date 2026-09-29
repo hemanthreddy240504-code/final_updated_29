@@ -389,9 +389,10 @@ def forgot_password(payload: ForgotPasswordIn, db: Session = Depends(get_db)):
             sent = send_email(user.email, subject, text_body, html_body)
         except Exception:
             sent = False
-        if not sent and not SMTP_HOST:
-            # Local development only: show a reset link in the response.
-            return {"message": "If an account exists, a reset link has been generated.", "dev_reset_url": url}
+        if not sent:
+            # Never expose a password-reset token in an API response.
+            # Configure SMTP in production so the reset link is delivered by email.
+            return {"message": "If an account exists for that email, a password reset link has been sent."}
     return {"message": "If an account exists for that email, a password reset link has been sent."}
 
 @app.post("/api/auth/forgot-user-id")
@@ -412,8 +413,8 @@ def forgot_user_id(payload: ForgotUserIdIn, db: Session = Depends(get_db)):
             sent = send_email(user.email, subject, text_body, html_body)
         except Exception:
             sent = False
-        if not sent and not SMTP_HOST:
-            return {"message": "If an account exists, the User ID has been generated.", "dev_user_id": user.user_id}
+        if not sent:
+            return {"message": "If an account exists for that email, the User ID has been sent."}
     return {"message": "If an account exists for that email, the User ID has been sent."}
 
 @app.post("/api/auth/reset-password")
