@@ -49,7 +49,6 @@ function render(id,type,obj){
       responsive:true,
       maintainAspectRatio:false,
       animation:false,
-      indexAxis:type==='bar'?'y':'x',
       plugins:{
         legend:{
           display:type==='doughnut',
@@ -60,7 +59,17 @@ function render(id,type,obj){
       layout:{padding:{top:4,right:8,bottom:4,left:8}},
       scales:type==='doughnut'?{}:{
         x:{
-          ticks:{color:text,autoSkip:true,maxRotation:type==='bar'?0:45,minRotation:0},
+          ticks:{
+            color:text,
+            autoSkip:false,
+            maxRotation:type==='bar'?(labels.length>8?55:0):45,
+            minRotation:type==='bar'?(labels.length>8?45:0):0,
+            font:{size:type==='bar'?(labels.length>8?10:12):12},
+            callback:function(value){
+              const label=this.getLabelForValue(value);
+              return type==='bar' && label.length>14 ? label.slice(0,14)+'…' : label;
+            }
+          },
           grid:{color:grid}
         },
         y:{
